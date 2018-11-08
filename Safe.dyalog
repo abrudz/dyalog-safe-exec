@@ -75,7 +75,7 @@
       exprs←splitondiamonds expr
      ⍝ Now we inject covers for ⍣ (so it can be interrupted killed by timeout) and ⍎ and ⍕ and ⌶ (for safety)
       (space.⎕LOCK¨⊢⊣'space'⎕NS⍪)'þéçí'
-      Code∆R←{('''[^'']*' '⍝.*',⊆⍺⍺)⎕R(,¨'&&',⊆⍵⍵)⊢⍵}
+      Code∆R←{('''[^'']*''' '⍝.*',⊆⍺⍺)⎕R(,¨'&&',⊆⍵⍵)⊢⍵}
      
       :Trap 0
           output←⍬
