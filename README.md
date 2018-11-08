@@ -1,4 +1,4 @@
-# Safe Execute for Dyalog APL
+# Safe Execute for [Dyalog APL](https://www.dyalog.com/)
 *Drop-in for* `⍎` *to execute arbitrary APL code safely*
 
 Load with  `⎕FIX 'file://path/Safe.dyalog'` then execute an expression with for example `Safe.Exec '⍳10'`.
