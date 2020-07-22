@@ -28,14 +28,14 @@
               r←⎕TSYNC tid←space AsynchExec&,expr      ⍝ Launch&wait execution in a separate thread
               ⎕TKILL kid ⍝ Kill the assassin
           :Case 6
-              'EXPRESSION TIME LIMIT EXCEEDED'⎕SIGNAL 10
+              ⎕SIGNAL⊂('EN' 10)('EM' 'EXPRESSION TIME LIMIT EXCEEDED')('Message'('Must complete within ',(⍕timeout),' seconds'))('Vendor' '∧')
           :Case 85
-              ⎕SIGNAL 6
+              ⎕SIGNAL⊂('EN' 6)('Message' 'Shy or no result')('Vendor'⎕DMX.Vendor)
           :Else
-              ⎕SIGNAL ⎕EN
+              ⎕SIGNAL⊂⎕DMX.(('EN' 11)('Message'Message)('Vendor'Vendor))
           :EndTrap
       :Else
-          'NOT PERMITTED'⎕SIGNAL 11
+          ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message'Message)('Vendor'Vendor))
       :EndIf
     ∇
 
@@ -79,6 +79,7 @@
      
       :Trap 0
           output←⍬
+          ⎕SIGNAL 85↓⍨≢exprs
           :For i :In ⍳⍴exprs
               expr←i⊃exprs
               :If 4=space.⎕NC opname←{(∧\'⍝'≠⍵)/⍵}expr
@@ -91,7 +92,7 @@
           space.⎕EX⍪'þéçí' ⍝ remove injected covers
       :Else
           space.⎕EX⍪'þéçí' ⍝ remove injected covers
-          ⎕SIGNAL ⎕EN+200×⎕EN≠85
+          ⎕SIGNAL⊂⎕DMX.(('EN'(EN+200×⎕EN≠85))('Message'Message)('Vendor'(14↓3⊃DM)))
       :EndTrap
     ∇
 
