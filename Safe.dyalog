@@ -4,12 +4,14 @@
 
     ⎕ML←1 ⋄ ⎕IO←1
 
-    ValidTokens←'⍺⍵¯.⍬{}⊣⌷¨⍨[/⌿\⍀<≤=≥>≠∨∧-+÷×?∊⍴~↑↓⍳○*⌈⌊∇∘(⊂⊃∩∪⊥⊤|;,⍱⍲⍒⍋⍉⌽⊖⍟⌹⍤⌸!⍪≡≢^∣:⍷⋄←⍝)]⊢⊣⍠⊆⍸⌺@'
-    ValidTokens,←'⎕RL' '⎕FMT' '⎕CT' '⎕IO' '⎕NC' '⎕NL' '⎕R' '⎕S'
+    ValidTokens←'⍺⍵¯.⍬{}⊣⌷¨⍨[/⌿\⍀<≤=≥>≠∨∧-+÷×?∊⍴~↑↓⍳○*⌈⌊∇∘(⊂⊃∩∪⊥⊤|;,⍱⍲⍒⍋⍉⌽⊖⍟⌹⍤⍥⌸!⍪≡≢^∣:⍷⋄←⍝)]⊢⊣⍠⊆⍸⌺@'
+    ValidTokens,←'⎕RL' '⎕FMT' '⎕CT' '⎕IO' '⎕NC' '⎕NL' '⎕R' '⎕S'  '⎕C' '⎕DT'
     ValidTokens,←'⎕SIZE' '⎕TS' '⎕UCS' '⎕VFI' '⎕XML' '⎕PP' '⎕D' '⎕A'
     ValidTokens,←'⎕DIV' '⎕JSON' '⎕CR' '⎕NR' '⎕VR' '⎕AT' '⎕DR' '⎕DL' '⎕EM' '⎕FR'
     ValidTokens,←'⍎' '⍣' '⍕' '⌶'⍝ these need special treatment!
     ValidTokens,¨←⊂⍬
+
+    Code∆R←{('''[^'']*''' '⍝.*',⊆⍺⍺)⎕R(,¨'&&',⊆⍵⍵)⊢⍵}
 
     ∇ r←{space_timeout}Exec expr;space;timeout;kid;tid
     ⍝ returns result
@@ -22,20 +24,24 @@
       :EndIf
       space←⊃(space_timeout/⍨326=⎕DR¨space_timeout),⎕NS ⍬ ⍝ default space is new empty
       timeout←⊃(space_timeout/⍨2|⎕DR¨space_timeout),DefaultTimeout ⍝ default timeout
+      expr←'^ *[⎕⍞]←'Code∆R'⊢'⊢expr
       :If ValidTokens ValidLine expr
           kid←KillAfter&timeout ⍝ Put out a contract on tid
           :Trap 0
               r←⎕TSYNC tid←space AsynchExec&,expr      ⍝ Launch&wait execution in a separate thread
               ⎕TKILL kid ⍝ Kill the assassin
           :Case 6
+              ⎕TKILL kid ⍝ Kill the assassin
               ⎕SIGNAL⊂('EN' 10)('EM' 'EXPRESSION TIME LIMIT EXCEEDED')('Message'('Must complete within ',(⍕timeout),' seconds'))('Vendor' '∧')
           :Case 85
+              ⎕TKILL kid ⍝ Kill the assassin
               ⎕SIGNAL⊂('EN' 6)('Message' 'Shy or no result')('Vendor'⎕DMX.Vendor)
           :Else
+              ⎕TKILL kid ⍝ Kill the assassin
               ⎕SIGNAL⊂⎕DMX.(('EN' 11)('Message'Message)('Vendor'Vendor))
           :EndTrap
       :Else
-          ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message'Message)('Vendor'Vendor))
+          ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
       :EndIf
     ∇
 
@@ -68,14 +74,13 @@
           ⎕TKILL tid⊣⎕DL ⍵ ⍝ Job done!
       }
 
-    ∇ r←space AsynchExec expr;result;dm;offset;t;output;exprs;pre;z;opname;safeExpr;i;Code∆R
+    ∇ r←space AsynchExec expr;result;dm;offset;t;output;exprs;pre;z;opname;safeExpr;i
     ⍝ Subroutine of Execute - runs in separate thread
     ⍝ Will be killed by "KillAfter" if it takes too long to execute
       space.⎕ML←1
       exprs←splitondiamonds expr
      ⍝ Now we inject covers for ⍣ (so it can be interrupted killed by timeout) and ⍎ and ⍕ and ⌶ (for safety)
       (space.⎕LOCK¨⊢⊣'space'⎕NS⍪)'þéçí'
-      Code∆R←{('''[^'']*''' '⍝.*',⊆⍺⍺)⎕R(,¨'&&',⊆⍵⍵)⊢⍵}
      
       :Trap 0
           output←⍬
@@ -107,7 +112,7 @@
       r←a(aa{⍺←⊢ ⋄ ⍺ ⍺⍺ ⍵}⍣ww)w
     ∇
     ∇ r←{a}é w;v;f ⍝ cover for ⍎ (allows only numbers)
-      ⎕SIGNAL(0∊⊃v f←⎕VFI w)/⊂('EN' 11)('Message' '⍎ is limited to only the conversion of text to numbers')
+      ⎕SIGNAL(0∊⊃v f←⎕VFI w)/⊂('EN' 11)('Message' '⍎ is limited to conversion of text to numbers')
       r←⊃⍣(1=≢f)⊢f
     ∇
     ∇ r←{a}ç w ⍝ cover for ⍕ (disallows inverse)
@@ -115,7 +120,7 @@
       r←a⍕w
     ∇
     ∇ r←{a}(aa í)w ⍝ cover for ⌶ (allows only case conversion)
-      ⎕SIGNAL((,819)≢,aa)/⊂('EN' 11)('Message' '⌶ is limited to only case convertion of text (819⌶)')
+      ⎕SIGNAL((,819)≢,aa)/⊂('EN' 11)('Message' '⌶ is limited to case conversion (819⌶) and date formatting (1200⌶)')
       :If 900⌶⍬ ⋄ a←⊢ ⋄ :EndIf
       r←a(819⌶)w
     ∇
