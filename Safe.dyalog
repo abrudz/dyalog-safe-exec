@@ -13,7 +13,7 @@
 
     Code∆R←{('''[^'']*''' '⍝.*',⊆⍺⍺)⎕R(,¨'&&',⊆⍵⍵)⊢⍵}
 
-    ∇ r←{space_timeout}Exec expr;space;timeout;kid;tid
+    ∇ r←{space_timeout}Exec expr;space;timeout;kid;tid;dmx
     ⍝ returns result
     ⍝ if shy, throws 6
     ⍝ if timed out, throws 10
@@ -37,8 +37,9 @@
               ⎕TKILL kid ⍝ Kill the assassin
               ⎕SIGNAL⊂('EN' 6)('Message' 'Shy or no result')('Vendor'⎕DMX.Vendor)
           :Else
+              dmx←⎕DMX
               ⎕TKILL kid ⍝ Kill the assassin
-              ⎕SIGNAL⊂⎕DMX.(('EN' 11)('Message'Message)('Vendor'Vendor))
+              ⎕SIGNAL⊂dmx.(('EN'EN)('Message'Message)('Vendor'Vendor))
           :EndTrap
       :Else
           ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
@@ -119,10 +120,10 @@
       :If 900⌶⍬ ⋄ a←⊢ ⋄ :EndIf
       r←a⍕w
     ∇
-    ∇ r←{a}(aa í)w ⍝ cover for ⌶ (allows only case conversion)
-      ⎕SIGNAL((,819)≢,aa)/⊂('EN' 11)('Message' '⌶ is limited to case conversion (819⌶) and date formatting (1200⌶)')
+    ∇ r←{a}(aa í)w ⍝ cover for ⌶ (allows only case conversion and date formatting)
+      ⎕SIGNAL(~(⊂,aa)∊,¨819 1200)/⊂('EN' 11)('Message' '⌶ is limited to case conversion (819⌶) and date formatting (1200⌶)')
       :If 900⌶⍬ ⋄ a←⊢ ⋄ :EndIf
-      r←a(819⌶)w
+      r←a(aa⌶)w
     ∇
     :EndSection
 
