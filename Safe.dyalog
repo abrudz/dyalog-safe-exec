@@ -91,7 +91,7 @@
               :If 4=space.⎕NC opname←{(∧\'⍝'≠⍵)/⍵}expr
                   output←⊂{(∨\'{'=⍵)/⍵},space.⎕CR opname
               :Else
-                  safeExpr←((⊂'(⊥|⍸|[-+×÷=≠]\\)(\s*\()?\s*⍣\s*¯'),'⍣⍎⍕⌶')Code∆R'&' ' þ ' ' é ' ' ç ' ' í '⊢expr ⍝ substitute ⍣ and ⍎ and ⍕ wand ⌶ ith covers
+                  safeExpr←(,¨'⍣⍎⍕⌶')Code∆R' þ ' ' é ' ' ç ' ' í '⊢expr ⍝ substitute ⍣ and ⍎ and ⍕ wand ⌶ ith covers
                   r←1 space.(85⌶)safeExpr
               :EndIf
           :EndFor
@@ -108,9 +108,12 @@
           (b⍲'⋄'=⍵)⊆⍵}
 
     :Section Covers
-    ∇ r←{a}(aa þ ww)w ⍝ cover for ⍣ (allows interruption)
+    ∇ r←{a}(aa þ ww)w;i ⍝ cover for ⍣ (allows interruption)
       :If 900⌶⍬ ⋄ a←⊢ ⋄ :EndIf
-      r←a(aa{⍺←⊢ ⋄ ⍺ ⍺⍺ ⍵}⍣ww)w
+      :If 2=⎕NC'ww'
+          aa←aa⍣(×ww)
+      :EndIf
+      r←a(aa{⍺←⊢ ⋄ ⍺ ⍺⍺ ⍵}⍣(|ww))w
     ∇
     ∇ r←{a}é w;v;f ⍝ cover for ⍎ (allows only numbers)
       ⎕SIGNAL(0∊⊃v f←⎕VFI w)/⊂('EN' 11)('Message' '⍎ is limited to conversion of text to numbers')
@@ -128,4 +131,3 @@
     :EndSection
 
 :EndNamespace
-
