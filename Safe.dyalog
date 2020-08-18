@@ -91,7 +91,7 @@
               :If 4=space.⎕NC opname←{(∧\'⍝'≠⍵)/⍵}expr
                   output←⊂{(∨\'{'=⍵)/⍵},space.⎕CR opname
               :Else
-                  safeExpr←(,¨'⍣⍎⍕⌶')Code∆R' þ ' ' é ' ' ç ' ' í '⊢expr ⍝ substitute ⍣ and ⍎ and ⍕ wand ⌶ ith covers
+                  safeExpr←((⊂'(⊥|⍸|[-+×÷=≠]\\)(\s*\()?\s*⍣\s*¯'),'⍣⍎⍕⌶')Code∆R'&' ' þ ' ' é ' ' ç ' ' í '⊢expr ⍝ substitute ⍣ and ⍎ and ⍕ wand ⌶ ith covers
                   r←1 space.(85⌶)safeExpr
               :EndIf
           :EndFor
@@ -128,3 +128,4 @@
     :EndSection
 
 :EndNamespace
+
