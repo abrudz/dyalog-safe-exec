@@ -98,7 +98,7 @@
           space.⎕EX⍪'þéçí' ⍝ remove injected covers
       :Else
           space.⎕EX⍪'þéçí' ⍝ remove injected covers
-          ⎕SIGNAL⊂⎕DMX.(('EN'(EN+200×⎕EN≠85))('Message'Message)('Vendor'(14↓3⊃DM)))
+          ⎕SIGNAL⊂⎕DMX.(('EN'(EN+200×⎕EN≠85))('Message'Message)('Vendor'(14↓3⊃⎕DM))) ⍝ Why doesn't 3⊃DM work?
       :EndTrap
     ∇
 
