@@ -75,13 +75,15 @@
           ⎕TKILL tid⊣⎕DL ⍵ ⍝ Job done!
       }
 
-    ∇ r←space AsynchExec expr;result;dm;offset;t;output;exprs;pre;z;opname;safeExpr;i
+    ∇ r←space AsynchExec expr;result;dm;offset;t;output;exprs;pre;z;opname;safeExpr;i;ExCovers
     ⍝ Subroutine of Execute - runs in separate thread
     ⍝ Will be killed by "KillAfter" if it takes too long to execute
       space.⎕ML←1
       exprs←splitondiamonds expr
      ⍝ Now we inject covers for ⍣ (so it can be interrupted killed by timeout) and ⍎ and ⍕ and ⌶ (for safety)
       (space.⎕LOCK¨⊢⊣'space'⎕NS⍪)'þéçí'
+      space.ß←⎕THIS
+      ExCovers←{⍵.⎕EX⍪'þéçíß'}
      
       :Trap 0
           output←⍬
@@ -95,10 +97,10 @@
                   r←1 space.(85⌶)safeExpr
               :EndIf
           :EndFor
-          space.⎕EX⍪'þéçí' ⍝ remove injected covers
+          ExCovers space  ⍝ remove injected covers
       :Else
-          space.⎕EX⍪'þéçí' ⍝ remove injected covers
-          ⎕SIGNAL⊂⎕DMX.(('EN'(EN+200×⎕EN≠85))('Message'Message)('Vendor'(14↓3⊃⎕DM))) ⍝ Why doesn't 3⊃DM work?
+          ExCovers space ⍝ remove injected covers
+          ⎕SIGNAL⊂⎕DMX.(('EN'((200|EN)+200×⎕EN≠85))('Message'Message)('Vendor'(14↓3⊃⎕DM))) ⍝ Why doesn't 3⊃DM work?
       :EndTrap
     ∇
 
@@ -108,25 +110,29 @@
           (b⍲'⋄'=⍵)⊆⍵}
 
     :Section Covers
-    ∇ r←{a}(aa þ ww)w;i ⍝ cover for ⍣ (allows interruption)
-      :If 900⌶⍬ ⋄ a←⊢ ⋄ :EndIf
-      :If 2=⎕NC'ww'
-          aa←aa⍣(×ww)
+    ∇ r←{á}(áá þ óó)ó ⍝ cover for ⍣ (allows interruption)
+      :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
+      :If 2=⎕NC'óó'
+          áá←áá⍣(×óó)
       :EndIf
-      r←a(aa{⍺←⊢ ⋄ ⍺ ⍺⍺ ⍵}⍣(|ww))w
+      r←á(áá{⍺←⊢ ⋄ ⍺ ⍺⍺ ⍵}⍣(|óó))ó
     ∇
-    ∇ r←{a}é w;v;f ⍝ cover for ⍎ (allows only numbers)
-      ⎕SIGNAL(0∊⊃v f←⎕VFI w)/⊂('EN' 11)('Message' '⍎ is limited to conversion of text to numbers')
-      r←⊃⍣(1=≢f)⊢f
+    ∇ ø←{á}é ó ⍝ cover for ⍎ (allows only numbers)
+      :If 1≥≢⍴ó
+      :AndIf ß.(ValidTokens∘ValidLine)ó
+          ø←⎕THIS ß.AsynchExec ó
+      :Else
+          ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
+      :EndIf
     ∇
-    ∇ r←{a}ç w ⍝ cover for ⍕ (disallows inverse)
-      :If 900⌶⍬ ⋄ a←⊢ ⋄ :EndIf
-      r←a⍕w
+    ∇ r←{á}ç ó ⍝ cover for ⍕ (disallows inverse)
+      :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
+      r←á⍕ó
     ∇
-    ∇ r←{a}(aa í)w ⍝ cover for ⌶ (allows only case conversion and date formatting)
-      ⎕SIGNAL(~(⊂,aa)∊,¨819 1200)/⊂('EN' 11)('Message' '⌶ is limited to case conversion (819⌶) and date formatting (1200⌶)')
-      :If 900⌶⍬ ⋄ a←⊢ ⋄ :EndIf
-      r←a(aa⌶)w
+    ∇ r←{á}(áá í)ó ⍝ cover for ⌶ (allows only case conversion and date formatting)
+      ⎕SIGNAL(~(⊂,áá)∊,¨819 1200)/⊂('EN' 11)('Message' '⌶ is limited to case conversion (819⌶) and date formatting (1200⌶)')
+      :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
+      r←á(áá⌶)ó
     ∇
     :EndSection
 
