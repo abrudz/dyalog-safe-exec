@@ -81,9 +81,9 @@
       space.⎕ML←1
       exprs←splitondiamonds expr
      ⍝ Now we inject covers for ⍣ (so it can be interrupted killed by timeout) and ⍎ and ⍕ and ⌶ (for safety)
-      (space.⎕LOCK¨⊢⊣'space'⎕NS⍪)'þéçí'
+      (space.⎕LOCK¨⊢⊣'space'⎕NS⍪)'Ñþéçí'
       space.ß←⎕THIS
-      ExCovers←{⍵.⎕EX⍪'þéçíß'}
+      ExCovers←{⍵.⎕EX⍪'Ñþéçíß'}
      
       :Trap 0
           output←⍬
@@ -93,7 +93,7 @@
               :If 4=space.⎕NC opname←{(∧\'⍝'≠⍵)/⍵}expr
                   output←⊂{(∨\'{'=⍵)/⍵},space.⎕CR opname
               :Else
-                  safeExpr←(,¨'⍣⍎⍕⌶')Code∆R' þ ' ' é ' ' ç ' ' í '⊢expr ⍝ substitute ⍣ and ⍎ and ⍕ wand ⌶ ith covers
+                  safeExpr←'⎕NL\b' '⍣' '⍎' '⍕' '⌶'Code∆R' Ñ ' ' þ ' ' é ' ' ç ' ' í '⊢expr ⍝ substitute ⍣ and ⍎ and ⍕ wand ⌶ ith covers
                   r←1 space.(85⌶)safeExpr
               :EndIf
           :EndFor
@@ -110,12 +110,12 @@
           (b⍲'⋄'=⍵)⊆⍵}
 
     :Section Covers
-    ∇ r←{á}(áá þ óó)ó ⍝ cover for ⍣ (allows interruption)
+    ∇ ø←{á}(áá þ óó)ó ⍝ cover for ⍣ (allows interruption)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       :If 2=⎕NC'óó'
           áá←áá⍣(×óó)
       :EndIf
-      r←á(áá{⍺←⊢ ⋄ ⍺ ⍺⍺ ⍵}⍣(|óó))ó
+      ø←á(áá{⍺←⊢ ⋄ ⍺ ⍺⍺ ⍵}⍣(|óó))ó
     ∇
     ∇ ø←{á}é ó ⍝ cover for ⍎ (allows only numbers)
       :If 1≥≢⍴ó
@@ -125,14 +125,19 @@
           ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
       :EndIf
     ∇
-    ∇ r←{á}ç ó ⍝ cover for ⍕ (disallows inverse)
+    ∇ ø←{á}ç ó ⍝ cover for ⍕ (disallows inverse)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      r←á⍕ó
+      ø←á⍕ó
     ∇
-    ∇ r←{á}(áá í)ó ⍝ cover for ⌶ (allows only case conversion and date formatting)
+    ∇ ø←{á}(áá í)ó ⍝ cover for ⌶ (allows only case conversion and date formatting)
       ⎕SIGNAL(~(⊂,áá)∊,¨819 1200)/⊂('EN' 11)('Message' '⌶ is limited to case conversion (819⌶) and date formatting (1200⌶)')
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      r←á(áá⌶)ó
+      ø←á(áá⌶)ó
+    ∇
+    ∇ ø←{á}Ñ ó  ⍝ cover for ⎕NL (hides covers)
+      :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
+      ø←á ⎕NL ó
+      ø⌿⍨←(⊃⍤1↑ø)∊⎕A,'⍺⍵∆⍙_',⎕C ⎕A
     ∇
     :EndSection
 
