@@ -7,8 +7,8 @@
     ValidTokens←'⍺⍵¯.⍬{}⊣⌷¨⍨[/⌿\⍀<≤=≥>≠∨∧-+÷×?∊⍴~↑↓⍳○*⌈⌊∇∘(⊂⊃∩∪⊥⊤|;,⍱⍲⍒⍋⍉⌽⊖⍟⌹⍤⍥⌸!⍪≡≢^∣:⍷⋄←⍝)]⊢⊣⍠⊆⍸⌺@'
     ValidTokens,←'⎕RL' '⎕FMT' '⎕CT' '⎕IO' '⎕NC' '⎕NL' '⎕R' '⎕S'  '⎕C' '⎕DT'
     ValidTokens,←'⎕SIZE' '⎕TS' '⎕UCS' '⎕VFI' '⎕XML' '⎕PP' '⎕D' '⎕A'
-    ValidTokens,←'⎕DIV' '⎕JSON' '⎕CR' '⎕NR' '⎕VR' '⎕AT' '⎕DR' '⎕DL' '⎕EM' '⎕FR'
-    ValidTokens,←'⍎' '⍣' '⍕' '⌶'⍝ these need special treatment!
+    ValidTokens,←'⎕DIV' '⎕JSON' '⎕CR' '⎕NR' '⎕VR' '⎕AT' '⎕DR' '⎕DL' '⎕FR'
+    ValidTokens,←'⍎' '⍣' '⍕' '⌶' '⎕FX' ⍝ these need special treatment!
     ValidTokens,¨←⊂⍬
 
     Code∆R←{('''[^'']*''' '⍝.*',⊆⍺⍺)⎕R(,¨'&&',⊆⍵⍵)⊢⍵}
@@ -75,15 +75,17 @@
           ⎕TKILL tid⊣⎕DL ⍵ ⍝ Job done!
       }
 
-    ∇ r←space AsynchExec expr;result;dm;offset;t;output;exprs;pre;z;opname;safeExpr;i;ExCovers
+    ∇ r←space AsynchExec expr;result;dm;offset;t;output;exprs;pre;z;opname;safeExpr;i;ExCovers;covers;covered
     ⍝ Subroutine of Execute - runs in separate thread
     ⍝ Will be killed by "KillAfter" if it takes too long to execute
       space.⎕ML←1
       exprs←splitondiamonds expr
      ⍝ Now we inject covers for ⍣ (so it can be interrupted killed by timeout) and ⍎ and ⍕ and ⌶ (for safety)
-      (space.⎕LOCK¨⊢⊣'space'⎕NS⍪)'Ñþéçí'
+      covered←'⎕NL\b' '⎕FX\b' '⍣' '⍎' '⍕' '⌶'
+      covers←'ÑÍþéçí'
+      (space.⎕LOCK¨⊢⊣'space'⎕NS⍪)covers
       space.ß←⎕THIS
-      ExCovers←{⍵.⎕EX⍪'Ñþéçíß'}
+      ExCovers←{⍵.⎕EX⍪covers,'ß'}
      
       :Trap 0
           output←⍬
@@ -93,7 +95,7 @@
               :If 4=space.⎕NC opname←{(∧\'⍝'≠⍵)/⍵}expr
                   output←⊂{(∨\'{'=⍵)/⍵},space.⎕CR opname
               :Else
-                  safeExpr←'⎕NL\b' '⍣' '⍎' '⍕' '⌶'Code∆R' Ñ ' ' þ ' ' é ' ' ç ' ' í '⊢expr ⍝ substitute ⍣ and ⍎ and ⍕ wand ⌶ ith covers
+                  safeExpr←covered Code∆R(' ',¨covers,¨' ')⊢expr ⍝ substitute ⍣ and ⍎ and ⍕ wand ⌶ ith covers
                   r←1 space.(85⌶)safeExpr
               :EndIf
           :EndFor
@@ -138,6 +140,19 @@
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ø←á ⎕NL ó
       ø⌿⍨←(⊃⍤1↑ø)∊⎕A,'⍺⍵∆⍙_',⎕C ⎕A
+    ∇
+    ∇ {náme}←{á}Í ó;náme  ⍝ cover for ⎕FX (refuses unsafe code)
+      :If ∧/,ß.(ValidTokens∘ValidLine)⍤1↑ó
+          náme←⎕FX ó
+          :If ⍬≡0/náme
+              ⎕SIGNAL('EN' 11)('EN' 'DEFN ERROR')
+          :ElseIf ~3.2 4.2∊⍨⎕NC⊂náme
+              ⎕EX náme
+              ⎕SIGNAL⊂('EN' 11)('Message' 'Install Dyalog to allow this')
+          :EndIf
+      :Else
+          ⎕SIGNAL⊂('EN' 11)('Message' 'Install Dyalog to allow this')
+      :EndIf
     ∇
     :EndSection
 
