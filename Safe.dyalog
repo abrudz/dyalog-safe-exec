@@ -145,7 +145,7 @@
       :If ∧/,ß.(ValidTokens∘ValidLine)⍤1↑ó
           náme←⎕FX ó
           :If ⍬≡0/náme
-              ⎕SIGNAL('EN' 11)('EN' 'DEFN ERROR')
+              ⎕SIGNAL⊂('EN' 11)('EM' 'DEFN ERROR')
           :ElseIf ~3.2 4.2∊⍨⎕NC⊂náme
               ⎕EX náme
               ⎕SIGNAL⊂('EN' 11)('Message' 'Install Dyalog to allow this')
