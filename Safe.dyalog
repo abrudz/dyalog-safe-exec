@@ -13,6 +13,11 @@
 
     Code∆R←{('''[^'']*''' '⍝.*',⊆⍺⍺)⎕R(,¨'&&',⊆⍵⍵)⊢⍵}
 
+    covered←'⎕NL\b' '⎕FX\b' '⍣' '⍎' '⍕' '⌶'
+    covers←'ÑÍþéçí'
+
+    CoverUp←covered Code∆R(' ',¨covers,¨' ')
+
     ∇ r←{space_timeout}Exec expr;space;timeout;kid;tid;dmx
     ⍝ returns result
     ⍝ if shy, throws 6
@@ -24,7 +29,7 @@
       :EndIf
       space←⊃(space_timeout/⍨326=⎕DR¨space_timeout),⎕NS ⍬ ⍝ default space is new empty
       timeout←⊃(space_timeout/⍨2|⎕DR¨space_timeout),DefaultTimeout ⍝ default timeout
-      expr←'^ *[⎕⍞]←'Code∆R'⊢'⊢expr
+      expr←'^\s*⎕\s*←'Code∆R'⊢'⊢expr
       :If ValidTokens ValidLine expr
           kid←KillAfter&timeout ⍝ Put out a contract on tid
           :Trap 0
@@ -75,14 +80,12 @@
           ⎕TKILL tid⊣⎕DL ⍵ ⍝ Job done!
       }
 
-    ∇ r←space AsynchExec expr;result;dm;offset;t;output;exprs;pre;z;opname;safeExpr;i;ExCovers;covers;covered
+    ∇ r←space AsynchExec expr;result;dm;offset;t;output;exprs;pre;z;opname;safeExpr;i;ExCovers
     ⍝ Subroutine of Execute - runs in separate thread
     ⍝ Will be killed by "KillAfter" if it takes too long to execute
       space.⎕ML←1
       exprs←splitondiamonds expr
      ⍝ Now we inject covers for ⍣ (so it can be interrupted killed by timeout) and ⍎ and ⍕ and ⌶ (for safety)
-      covered←'⎕NL\b' '⎕FX\b' '⍣' '⍎' '⍕' '⌶'
-      covers←'ÑÍþéçí'
       (space.⎕LOCK¨⊢⊣'space'⎕NS⍪)covers
       space.ß←⎕THIS
       ExCovers←{⍵.⎕EX⍪covers,'ß'}
@@ -95,7 +98,7 @@
               :If 4=space.⎕NC opname←{(∧\'⍝'≠⍵)/⍵}expr
                   output←⊂{(∨\'{'=⍵)/⍵},space.⎕CR opname
               :Else
-                  safeExpr←covered Code∆R(' ',¨covers,¨' ')⊢expr ⍝ substitute ⍣ and ⍎ and ⍕ wand ⌶ ith covers
+                  safeExpr←CoverUp expr ⍝ substitute covers for what they cover
                   r←1 space.(85⌶)safeExpr
               :EndIf
           :EndFor
@@ -143,6 +146,7 @@
     ∇
     ∇ {náme}←{á}Í ó;náme  ⍝ cover for ⎕FX (refuses unsafe code)
       :If ∧/,ß.(ValidTokens∘ValidLine)⍤1↑ó
+          ó←ß.CoverUp ó
           náme←⎕FX ó
           :If ⍬≡0/náme
               ⎕SIGNAL⊂('EN' 11)('EM' 'DEFN ERROR')
