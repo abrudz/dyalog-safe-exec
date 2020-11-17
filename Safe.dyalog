@@ -146,7 +146,7 @@
           náme←⎕FX ó
           :If ⍬≡0/náme
               ⎕SIGNAL⊂('EN' 11)('EM' 'DEFN ERROR')
-          :ElseIf ~3.2 4.2∊⍨⎕NC⊂náme
+          :ElseIf ~3.1 3.2 4.1 4.2∊⍨⎕NC⊂náme
               ⎕EX náme
               ⎕SIGNAL⊂('EN' 11)('Message' 'Install Dyalog to allow this')
           :EndIf
