@@ -1,23 +1,16 @@
 :Namespace Safe
-
     DefaultTimeout←10
-
     ⎕ML←1 ⋄ ⎕IO←1
-
     ValidTokens←'⍺⍵¯.⍬{}⊣⌷¨⍨[/⌿\⍀<≤=≥>≠∨∧-+÷×?∊⍴~↑↓⍳○*⌈⌊∇∘(⊂⊃∩∪⊥⊤|;,⍱⍲⍒⍋⍉⌽⊖⍟⌹⍤⍥⌸!⍪≡≢^∣:⍷⋄←⍝)]⊢⊣⍠⊆⍸⌺@'
     ValidTokens,←'⎕RL' '⎕FMT' '⎕CT' '⎕IO' '⎕NC' '⎕NL' '⎕R' '⎕S'  '⎕C' '⎕DT'
     ValidTokens,←'⎕SIZE' '⎕TS' '⎕UCS' '⎕VFI' '⎕XML' '⎕PP' '⎕D' '⎕A'
     ValidTokens,←'⎕DIV' '⎕JSON' '⎕CR' '⎕NR' '⎕VR' '⎕AT' '⎕DR' '⎕DL' '⎕FR'
     ValidTokens,←'⍎' '⍣' '⍕' '⌶' '⎕FX' ⍝ these need special treatment!
     ValidTokens,¨←⊂⍬
-
     Code∆R←{('''[^'']*''' '⍝.*',⊆⍺⍺)⎕R(,¨'&&',⊆⍵⍵)⊢⍵}
-
     covered←'⎕NL\b' '⎕FX\b' '⍣' '⍎' '⍕' '⌶'
     covers←'ÑÍþéçí'
-
     CoverUp←covered Code∆R(' ',¨covers,¨' ')
-
     ∇ r←{space_timeout}Exec expr;space;timeout;kid;tid;dmx
     ⍝ returns result
     ⍝ if shy, throws 6
@@ -50,13 +43,12 @@
           ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
       :EndIf
     ∇
-
       ValidLine←{ ⍝ Parse a single line of code, accepts only tokens in ⍺
           ShR←{¯1↓0,⍵}    ⍝ shift right fn
     ⍝ Split on tokens: names, ⎕names, strings, others
           str←t∨ss←≠\t←⍵=''''     ⍝ where the strings are
           cmnt←∨\str<'⍝'=⍵        ⍝ comment
-          ¯1↑ss>cmnt:2 'open quote'    ⍝ detect uneven quotes early
+          ¯1↑ss>cmnt:⎕SIGNAL⊂('EN'2)('Message' 'Unpaired quote') ⍝ detect uneven quotes early
           str←str>cmnt
           ss←str>ShR str          ⍝ where the strings start
           cs←<\cmnt               ⍝ comment start
@@ -73,13 +65,11 @@
           ok←(∨\t/cs)∨(t/ss)∨t/sn
           ∧/t←ok∨tokens∊⍺,⊂,' '
       }
-
       KillAfter←{
     ⍝ Kill (global) tid after some time
           0::
           ⎕TKILL tid⊣⎕DL ⍵ ⍝ Job done!
       }
-
     ∇ r←space AsynchExec expr;result;dm;offset;t;output;exprs;pre;z;opname;safeExpr;i;ExCovers
     ⍝ Subroutine of Execute - runs in separate thread
     ⍝ Will be killed by "KillAfter" if it takes too long to execute
@@ -108,12 +98,10 @@
           ⎕SIGNAL⊂⎕DMX.(('EN'((200|EN)+200×⎕EN≠85))('Message'Message)('Vendor'(14↓3⊃⎕DM))) ⍝ Why doesn't 3⊃DM work?
       :EndTrap
     ∇
-
       splitondiamonds←{
           b←q⍱∨\('⍝'=⍵)>q←≠\''''=⍵         ⍝ Not in quotes or comment
           b←b∧0=+\b×(1 ¯1 0)['{}'⍳⍵]       ⍝ Not in a dfn body
           (b⍲'⋄'=⍵)⊆⍵}
-
     :Section Covers
     ∇ ø←{á}(áá þ óó)ó ⍝ cover for ⍣ (allows interruption)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
@@ -159,5 +147,4 @@
       :EndIf
     ∇
     :EndSection
-
 :EndNamespace
