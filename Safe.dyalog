@@ -26,8 +26,9 @@
       :If ValidTokens ValidLine expr
           kid←KillAfter&timeout ⍝ Put out a contract on tid
           :Trap 0
-              r←⎕TSYNC tid←space AsynchExec&,expr      ⍝ Launch&wait execution in a separate thread
+              ⎕TSYNC tid←space AsynchExec&,expr      ⍝ Launch&wait execution in a separate thread
               ⎕TKILL kid ⍝ Kill the assassin
+              r←space.(⎕EX⊢⎕OR)'résult'
           :Case 6
               ⎕TKILL kid ⍝ Kill the assassin
               ⎕SIGNAL⊂('EN' 10)('EM' 'EXPRESSION TIME LIMIT EXCEEDED')('Message'('Must complete within ',(⍕timeout),' seconds'))('Vendor' '∧')
@@ -48,7 +49,7 @@
     ⍝ Split on tokens: names, ⎕names, strings, others
           str←t∨ss←≠\t←⍵=''''     ⍝ where the strings are
           cmnt←∨\str<'⍝'=⍵        ⍝ comment
-          ¯1↑ss>cmnt:⎕SIGNAL⊂('EN'2)('Message' 'Unpaired quote') ⍝ detect uneven quotes early
+          ¯1↑ss>cmnt:⎕SIGNAL⊂('EN' 2)('Message' 'Unpaired quote') ⍝ detect uneven quotes early
           str←str>cmnt
           ss←str>ShR str          ⍝ where the strings start
           cs←<\cmnt               ⍝ comment start
@@ -70,7 +71,7 @@
           0::
           ⎕TKILL tid⊣⎕DL ⍵ ⍝ Job done!
       }
-    ∇ r←space AsynchExec expr;result;dm;offset;t;output;exprs;pre;z;opname;safeExpr;i;ExCovers
+    ∇ {space}←space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i;ExCovers
     ⍝ Subroutine of Execute - runs in separate thread
     ⍝ Will be killed by "KillAfter" if it takes too long to execute
       space.⎕ML←1
@@ -85,11 +86,12 @@
           ⎕SIGNAL 85↓⍨≢exprs
           :For i :In ⍳⍴exprs
               expr←i⊃exprs
+              space.⎕EX'résult'
               :If 4=space.⎕NC opname←{(∧\'⍝'≠⍵)/⍵}expr
-                  output←⊂{(∨\'{'=⍵)/⍵},space.⎕CR opname
+                  space⍎'résult←',opname
               :Else
                   safeExpr←CoverUp expr ⍝ substitute covers for what they cover
-                  r←1 space.(85⌶)safeExpr
+                  space.résult←1 space.(85⌶)safeExpr
               :EndIf
           :EndFor
           ExCovers space  ⍝ remove injected covers
