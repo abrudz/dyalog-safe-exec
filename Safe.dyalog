@@ -92,7 +92,7 @@
      
       :Trap debug↓0
           output←⍬
-          ⎕SIGNAL 85↓⍨≢exprs
+          ⎕SIGNAL 85/⍨0=≢exprs
           :For i :In ⍳⍴exprs
               expr←i⊃exprs
               space.⎕EX'résult'
@@ -123,8 +123,12 @@
       :If 1≥≢⍴ó
       :AndIf 80 160 320∊⍨⎕DR ó ⍝ char
       :AndIf ß.(ValidTokens∘ValidLine)ó←,ó
-          ⎕THIS ß.AsynchExec ó
-          ø←résult
+          :Trap 85
+              ⎕THIS ß.AsynchExec ó
+          :EndTrap
+          :If ×⎕NC'résult'
+              ø←résult
+          :EndIf
           ⎕EX'résult'
       :Else
           ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
