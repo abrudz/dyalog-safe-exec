@@ -11,7 +11,8 @@
     covered←'⎕NL\b' '⎕FX\b' '⍣' '⍎' '⍕' '⌶'
     covers←'ÑÍþéçí'
     CoverUp←covered Code∆R(' ',¨covers,¨' ')
-    ∇ r←{space_timeout}Exec expr;space;timeout;kid;tid;dmx
+    debug←0
+    ∇ r←{space_timeout}Exec expr;space;timeout;kid;tid;dmx;ExCovers
     ⍝ returns result
     ⍝ if shy, throws 6
     ⍝ if timed out, throws 10
@@ -25,19 +26,24 @@
       expr←'^\s*⎕\s*←'Code∆R'⊢'⊢expr
       :If ValidTokens ValidLine expr
           kid←KillAfter&timeout ⍝ Put out a contract on tid
-          :Trap 0
+          :Trap debug↓0
+              ExCovers←{⍵.⎕EX⍪covers,'ß'}
               ⎕TSYNC tid←space AsynchExec&,expr      ⍝ Launch&wait execution in a separate thread
               ⎕TKILL kid ⍝ Kill the assassin
+              ExCovers space  ⍝ remove injected covers
               r←space.(⎕EX⊢⎕OR)'résult'
           :Case 6
               ⎕TKILL kid ⍝ Kill the assassin
+              ExCovers space  ⍝ remove injected covers
               ⎕SIGNAL⊂('EN' 10)('EM' 'EXPRESSION TIME LIMIT EXCEEDED')('Message'('Must complete within ',(⍕timeout),' seconds'))('Vendor' '∧')
           :Case 85
               ⎕TKILL kid ⍝ Kill the assassin
+              ExCovers space  ⍝ remove injected covers
               ⎕SIGNAL⊂('EN' 6)('Message' 'Shy or no result')('Vendor'⎕DMX.Vendor)
           :Else
               dmx←⎕DMX
               ⎕TKILL kid ⍝ Kill the assassin
+              ExCovers space  ⍝ remove injected covers
               ⎕SIGNAL⊂dmx.(('EN'EN)('Message'Message)('Vendor'Vendor))
           :EndTrap
       :Else
@@ -69,19 +75,22 @@
       KillAfter←{
     ⍝ Kill (global) tid after some time
           0::
+          0=⍵:
           ⎕TKILL tid⊣⎕DL ⍵ ⍝ Job done!
       }
-    ∇ {space}←space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i;ExCovers
+    ∇ space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i
     ⍝ Subroutine of Execute - runs in separate thread
     ⍝ Will be killed by "KillAfter" if it takes too long to execute
       space.⎕ML←1
       exprs←splitondiamonds expr
      ⍝ Now we inject covers for ⍣ (so it can be interrupted killed by timeout) and ⍎ and ⍕ and ⌶ (for safety)
-      (space.⎕LOCK¨⊢⊣'space'⎕NS⍪)covers
+      'space'⎕NS⍪covers
+      :If ~debug
+          space.⎕LOCK¨covers
+      :EndIf
       space.ß←⎕THIS
-      ExCovers←{⍵.⎕EX⍪covers,'ß'}
      
-      :Trap 0
+      :Trap debug↓0
           output←⍬
           ⎕SIGNAL 85↓⍨≢exprs
           :For i :In ⍳⍴exprs
@@ -94,9 +103,7 @@
                   space.résult←1 space.(85⌶)safeExpr
               :EndIf
           :EndFor
-          ExCovers space  ⍝ remove injected covers
       :Else
-          ExCovers space ⍝ remove injected covers
           ⎕SIGNAL⊂⎕DMX.(('EN'((200|EN)+200×⎕EN≠85))('Message'Message)('Vendor'(14↓3⊃⎕DM))) ⍝ Why doesn't 3⊃DM work?
       :EndTrap
     ∇
@@ -114,8 +121,11 @@
     ∇
     ∇ ø←{á}é ó ⍝ cover for ⍎ (allows only numbers)
       :If 1≥≢⍴ó
-      :AndIf ß.(ValidTokens∘ValidLine)ó
-          ø←⎕THIS ß.AsynchExec ó
+      :AndIf 80 160 320∊⍨⎕DR ó ⍝ char
+      :AndIf ß.(ValidTokens∘ValidLine)ó←,ó
+          ⎕THIS ß.AsynchExec ó
+          ø←résult
+          ⎕EX'résult'
       :Else
           ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
       :EndIf
