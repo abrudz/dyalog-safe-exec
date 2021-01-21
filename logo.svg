@@ -1,0 +1,34 @@
+<svg viewBox="100.0 150.0 400.0 400.0" width="200.0px" height="200.0px" xmlns="http://www.w3.org/2000/svg">
+<path style="fill:none;stroke:currentcolor;stroke-width:38.0;stroke-linejoin: miter;stroke-linecap: butt;" d="
+M298,494
+C298,442 298,391 298,317 
+"></path>
+<path style="fill:currentcolor;stroke: none;stroke-width:0.0;stroke-linejoin: miter;stroke-linecap: butt;" d="
+M299,378
+C325,378 339,389 339,411 
+339,433 325,444 299,444 
+273,444 259,433 259,411 
+259,389 273,378 299,378 Z
+M299,346
+C250,346 227,367 227,411 
+227,455 250,476 299,476 
+348,476 371,455 371,411 
+371,367 348,346 299,346 Z"></path>
+<path style="fill:none;stroke:currentcolor;stroke-width:38.0;stroke-linejoin: miter;stroke-linecap: butt;" d="
+M186,509
+C167,509 143,509 143,509 
+143,509 143,372 143,372 
+143,288 214,213 298,213 
+382,213 453,288 453,372 
+453,372 453,509 453,509 
+453,509 430,509 410,509 
+"></path>
+<path style="fill:none;stroke:currentcolor;stroke-width:38.0;stroke-linejoin: miter;stroke-linecap: butt;" d="
+M298,279
+C298,279 298,218 298,218 
+"></path>
+<path style="fill:none;stroke:currentcolor;stroke-width:38.0;stroke-linejoin: miter;stroke-linecap: butt;" d="
+M372,509
+C351,509 246,509 224,509 
+"></path>
+</svg>

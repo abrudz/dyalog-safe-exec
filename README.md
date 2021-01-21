@@ -27,3 +27,7 @@ The following errors may also be signalled:
 ```
 
 For a more advanced example preserving a state and handling errors, see `Example.dyalog`.
+
+## Logo
+
+By [dzaima](https://chat.stackexchange.com/transcript/message/56823573#56823573) and [Wezl](https://chat.stackexchange.com/transcript/message/56823580#56823580).
