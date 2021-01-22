@@ -1,3 +1,4 @@
+[Safe Execute Logo](logo.svg)
 # Safe Execute for [Dyalog APL](https://www.dyalog.com/)
 *Drop-in for* `⍎` *to execute arbitrary APL code safely*
 
