@@ -12,7 +12,7 @@
     covers←'ÑÍþéçí'
     CoverUp←covered Code∆R(' ',¨covers,¨' ')
     debug←0
-    ∇ r←{space_timeout}Exec expr;space;timeout;kid;tid;dmx;ExCovers
+    ∇ r←{space_timeout}Exec expr;ExCovers;dmx;kid;space;tid;timeout;shy
     ⍝ returns result
     ⍝ if shy, throws 6
     ⍝ if timed out, throws 10
@@ -23,7 +23,8 @@
       :EndIf
       space←⊃(space_timeout/⍨326=⎕DR¨space_timeout),⎕NS ⍬ ⍝ default space is new empty
       timeout←⊃(space_timeout/⍨2|⎕DR¨space_timeout),DefaultTimeout ⍝ default timeout
-      expr←'^\s*⎕\s*←'Code∆R'⊢'⊢expr
+      shy←0=≢'^\s*⎕\s*←'⎕S 3⊢expr
+      expr←'^\s*⎕\s*←'Code∆R''⊢expr
       :If ValidTokens ValidLine expr
           kid←KillAfter&timeout ⍝ Put out a contract on tid
           :Trap debug↓0
@@ -100,7 +101,7 @@
                   space⍎'résult←',opname
               :Else
                   safeExpr←CoverUp expr ⍝ substitute covers for what they cover
-                  space.résult←1 space.(85⌶)safeExpr
+                  space.résult←shy space.(85⌶)safeExpr
               :EndIf
           :EndFor
       :Else
