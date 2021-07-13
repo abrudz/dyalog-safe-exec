@@ -98,7 +98,7 @@
       }
 
 
-    ∇ space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i;dfn
+    ∇ space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i
     ⍝ Subroutine of Exec - runs in separate thread
     ⍝ Will be killed by "Monitor" if it takes too long to execute
       space.⎕ML←1
@@ -119,20 +119,23 @@
               :If 4=space.⎕NC opname←{(∧\'⍝'≠⍵)/⍵}expr
                   space⍎'résult←',opname
               :Else
-                  safeExpr←'^\s+'⎕R''⍠'Mode' 'D' CoverUp expr ⍝ substitute covers for what they cover
+                  safeExpr←'^\s+'⎕R''⍠'Mode' 'D'CoverUp expr ⍝ substitute covers for what they cover
      
                   :If 2≤≢⎕FMT safeExpr
-                      dfn←'∇'≠⊃safeExpr
-                      :If dfn
-                         safeExpr,⍨←'résult←__sessionínput__',(⎕UCS 10),'résult←' ⍝ add header if not tradfn -- fails on multi-line without result
-                      :EndIf
-                      space.résult←space.⎕FX ⎕FMT safeExpr
-                      :If ≡space.résult
+                      :If '∇'=⊃safeExpr
+                          :If ≡space.⎕FX ⎕FMT safeExpr
+                              ⎕SIGNAL 85
+                          :Else
+                              space.résult←'defn error'
+                          :EndIf
+                      :ElseIf ≢'^\s*[\w∆⍙]+\s*←'⎕S 3⍠'Mode' 'D'⊢safeExpr
+                          safeExpr,⍨←'__sessionínput__',(⎕UCS 10)
+                          space.⎕FX ⎕FMT safeExpr
+                          space.__sessionínput__
+                          ⎕SIGNAL 85
                       :Else
-                          space.résult←'defn error'
-                      :EndIf
-                      :If dfn
-                          space.résult←shy space.(85⌶)'__sessionínput__'
+                          safeExpr←'''[^'']+''' '(⍝.*)?\n'⎕R'&' ' ⋄ '⍠'Mode' 'D'⊢safeExpr
+                          space.résult←shy space.(85⌶)safeExpr
                       :EndIf
                   :Else
                       space.résult←shy space.(85⌶)safeExpr
