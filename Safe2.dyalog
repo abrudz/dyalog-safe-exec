@@ -143,7 +143,7 @@
               :EndIf
           :EndFor
       :Else
-          ⎕SIGNAL⊂⎕DMX.(('EN'((200|EN)+200×⎕EN≠85))('Message'Message)('Vendor'(14↓3⊃⎕DM))) ⍝ Why doesn't 3⊃DM work?
+          ⎕SIGNAL⊂⎕DMX.(('EN'((200|EN)+200×⎕EN≠85))('Message'Message)('Vendor'(14↓⊃2⌽⊆⎕DM))) ⍝ Why doesn't 3⊃DM work?
       :EndTrap
     ∇
       splitondiamonds←{
