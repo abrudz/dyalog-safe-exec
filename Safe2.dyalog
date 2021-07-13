@@ -29,7 +29,7 @@
       timeout←⊃(space_timeout/⍨2|⎕DR¨space_timeout),DefaultTimeout ⍝ default timeout
       shy←0=≢'^\s*⎕\s*←'⎕S 3⊢expr
       expr←'^\s*⎕\s*←'Code∆R''⊢expr
-      :If ValidTokens ValidLine expr
+      :If ValidTokens ValidLine⍕↓⎕FMT expr
           :If 0=monitor
               threads←⍬
               cutoffs←⍬
@@ -98,7 +98,7 @@
       }
 
 
-    ∇ space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i
+    ∇ space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i;dfn
     ⍝ Subroutine of Exec - runs in separate thread
     ⍝ Will be killed by "Monitor" if it takes too long to execute
       space.⎕ML←1
@@ -119,8 +119,24 @@
               :If 4=space.⎕NC opname←{(∧\'⍝'≠⍵)/⍵}expr
                   space⍎'résult←',opname
               :Else
-                  safeExpr←CoverUp expr ⍝ substitute covers for what they cover
-                  space.résult←shy space.(85⌶)safeExpr
+                  safeExpr←'^\s+'⎕R''⍠'Mode' 'D' CoverUp expr ⍝ substitute covers for what they cover
+     
+                  :If 2≤≢⎕FMT safeExpr
+                      dfn←'∇'≠⊃safeExpr
+                      :If dfn
+                         safeExpr,⍨←'résult←__sessionínput__',(⎕UCS 10),'résult←' ⍝ add header if not tradfn -- fails on multi-line without result
+                      :EndIf
+                      space.résult←space.⎕FX ⎕FMT safeExpr
+                      :If ≡space.résult
+                      :Else
+                          space.résult←'defn error'
+                      :EndIf
+                      :If dfn
+                          space.résult←shy space.(85⌶)'__sessionínput__'
+                      :EndIf
+                  :Else
+                      space.résult←shy space.(85⌶)safeExpr
+                  :EndIf
               :EndIf
           :EndFor
       :Else
