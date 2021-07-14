@@ -12,7 +12,6 @@
     covers←'ÑÍþéçí'
     CoverUp←covered Code∆R(' ',¨covers,¨' ')
     debug←0
-    lf←⎕UCS 10
 
     monitor←0
     threads←⍬
@@ -99,7 +98,7 @@
       }
 
 
-    ∇ space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i
+    ∇ space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i;lf
     ⍝ Subroutine of Exec - runs in separate thread
     ⍝ Will be killed by "Monitor" if it takes too long to execute
       space.⎕ML←1
@@ -130,7 +129,7 @@
                               space.résult←'defn error'
                           :EndIf
                       :ElseIf ≢'^\s*[\w∆⍙]+\s*←'⎕S 3⍠'Mode' 'D'⊢safeExpr
-                          safeExpr,⍨←'__sessionínput__',lf,'⎕EX⍬⍴⎕SI',lf
+                          safeExpr,⍨←'__sessionínput__',lf,'⎕EX⍬⍴⎕SI',lf←⎕UCS 10
                           space.⎕FX ⎕FMT safeExpr
                           space.__sessionínput__
                           ⎕SIGNAL 85
