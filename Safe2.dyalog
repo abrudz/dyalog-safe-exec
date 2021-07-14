@@ -12,6 +12,7 @@
     covers←'ÑÍþéçí'
     CoverUp←covered Code∆R(' ',¨covers,¨' ')
     debug←0
+    lf←⎕UCS 10
 
     monitor←0
     threads←⍬
@@ -129,7 +130,7 @@
                               space.résult←'defn error'
                           :EndIf
                       :ElseIf ≢'^\s*[\w∆⍙]+\s*←'⎕S 3⍠'Mode' 'D'⊢safeExpr
-                          safeExpr,⍨←'__sessionínput__',(⎕UCS 10)
+                          safeExpr,⍨←'__sessionínput__',lf,'⎕EX⍬⍴⎕SI',lf
                           space.⎕FX ⎕FMT safeExpr
                           space.__sessionínput__
                           ⎕SIGNAL 85
