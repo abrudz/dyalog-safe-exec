@@ -38,8 +38,8 @@
      
           :Trap debug↓0
               ExCovers←{⍵.⎕EX⍪covers,'ß'}
-              cutoffs,←timeout+20 ⎕DT'Z'
-              ⎕TSYNC threads,←space AsynchExec&,expr      ⍝ Launch&wait execution in a separate thread
+              cutoffs,←debug↓timeout+20 ⎕DT'Z'
+              ⎕TSYNC threads{⍺,debug↓⍵}←space AsynchExec&,expr      ⍝ Launch&wait execution in a separate thread
               ExCovers space  ⍝ remove injected covers
               r←space.(⎕EX⊢⎕OR)'résult'
           :Case 6
