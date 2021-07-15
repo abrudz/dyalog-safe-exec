@@ -14,9 +14,8 @@
     debug←0
 
     monitor←0
-    threads←⍬
-    cutoffs←⍬
-    ∇ r←{space_timeout}Exec expr;ExCovers;dmx;space;tid;timeout;shy
+    tasks←⍬ ⍬
+    ∇ r←{space_timeout}Exec expr;ExCovers;dmx;space;tid;timeout;shy;thread
     ⍝ returns result
     ⍝ if shy, throws 6
     ⍝ if timed out, throws 10
@@ -31,15 +30,16 @@
       expr←'^\s*⎕\s*←'Code∆R''⊢expr
       :If ValidTokens ValidLine⍕↓⎕FMT expr
           :If 0=monitor
-              threads←⍬
-              cutoffs←⍬
+              tasks←⍬ ⍬
               monitor←Monitor&1
           :EndIf
      
           :Trap debug↓0
               ExCovers←{⍵.⎕EX⍪covers,'ß'}
-              cutoffs,←debug↓timeout+20 ⎕DT'Z'
-              ⎕TSYNC threads{⍺,debug↓⍵}←space AsynchExec&,expr      ⍝ Launch&wait execution in a separate thread
+              :Hold 'tasks'
+                  tasks{⍺,¨debug↓¨⍵}←(thread←space AsynchExec&,expr)(timeout+20 ⎕DT'Z')      ⍝ Launch&wait execution in a separate thread
+              :EndHold
+              ⎕TSYNC thread
               ExCovers space  ⍝ remove injected covers
               r←space.(⎕EX⊢⎕OR)'résult'
           :Case 6
@@ -58,19 +58,20 @@
       :EndIf
     ∇
 
-    ∇ Monitor go
+    ∇ Monitor go;stop;now;expired
       :If go
           :Repeat
-              go←cutoffs>20 ⎕DT'Z'
-              ⎕TKILL threads/⍨~go
-              threads/⍨←go
-              cutoffs/⍨←go
+              :Hold 'tasks'
+                  now←20 ⎕DT'Z'
+                  stop←now>⊃⌽tasks
+                  expired←stop/⊃tasks
+                  tasks/¨⍨←⊂~stop
+              :EndHold
+              ⎕TKILL expired
               ⎕DL 1
           :EndRepeat
       :Else
-          ⎕TKILL threads,monitor
-          threads←⍬
-          cutoffs←⍬
+          ⎕TKILL monitor,⊃tasks
       :EndIf
     ∇
 
