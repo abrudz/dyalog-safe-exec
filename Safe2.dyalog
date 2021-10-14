@@ -61,13 +61,20 @@
     ∇ Monitor go;stop;now;expired
       :If go
           :Repeat
-              :Hold 'tasks'
-                  now←20 ⎕DT'Z'
-                  stop←now>⊃⌽tasks
-                  expired←stop/⊃tasks
-                  tasks/¨⍨←⊂~stop
-              :EndHold
-              ⎕TKILL expired
+              :Trap 0
+                  :Hold 'tasks'
+                      now←20 ⎕DT'Z'
+                      stop←now>⊃⌽tasks
+                      expired←stop/⊃tasks
+                      tasks/¨⍨←⊂~stop
+                  :EndHold
+                  ⎕TKILL expired
+              :Else
+                  :Hold 'tasks'
+                      ⎕TKILL⊃tasks
+                      tasks←⍬ ⍬
+                  :EndHold
+              :EndTrap
               ⎕DL 1
           :EndRepeat
       :Else
