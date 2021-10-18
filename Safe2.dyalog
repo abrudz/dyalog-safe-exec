@@ -58,24 +58,33 @@
       :EndIf
     ∇
 
-    ∇ Monitor go;stop;now;expired
+    ∇ Monitor go;stop;now;expired;cr
+      cr←⎕UCS 13
       :If go
           :Repeat
               :Trap 0
-                  :Hold 'tasks'
-                      now←20 ⎕DT'Z'
-                      stop←now>⊃⌽tasks
-                      expired←stop/⊃tasks
-                      tasks/¨⍨←⊂~stop
-                  :EndHold
-                  ⎕TKILL expired
-              :Else
-                  :Hold 'tasks'
-                      ⎕TKILL⊃tasks
-                      tasks←⍬ ⍬
-                  :EndHold
+                  :Repeat
+                      :Hold 'tasks'
+                          now←20 ⎕DT'Z'
+                          stop←now>⊃⌽tasks
+                          expired←stop/⊃tasks
+                          tasks/¨⍨←⊂~stop
+                      :EndHold
+                      ⎕TKILL expired
+                      ⎕DL 1
+                  :EndRepeat
               :EndTrap
-              ⎕DL 1
+              :Hold 'tasks'
+                  :Trap 1
+                      ⍞←'Monitor failed ─ killed all task threads!'
+                      ⍞←cr,'Workspace available before and after compaction: ',⍕2000⌶0
+                      ⍞←'→',⍕⎕WA
+                      ⍞←cr,'Tasks: ',≢⊃tasks
+                  :EndTrap
+                  ⎕TKILL⊃tasks
+                  tasks←⍬ ⍬
+                  ⍞←cr,'⎕DMX: ',⎕JSON ⎕DMX
+              :EndHold
           :EndRepeat
       :Else
           ⎕TKILL monitor,⊃tasks
