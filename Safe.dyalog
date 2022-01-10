@@ -2,7 +2,7 @@
     DefaultTimeout←10
     ⎕ML←1 ⋄ ⎕IO←1
     ValidTokens←'⍺⍵¯.⍬{}⊣⌷¨⍨[/⌿\⍀<≤=≥>≠∨∧-+÷×?∊⍴~↑↓⍳○*⌈⌊∇∘(⊂⊃∩∪⊥⊤|;,⍱⍲⍒⍋⍉⌽⊖⍟⌹⍤⍥⌸!⍪≡≢^∣:⍷⋄←⍝)]⊢⊣⍠⊆⍸⌺@'
-    ValidTokens,←'⎕RL' '⎕FMT' '⎕CT' '⎕IO' '⎕NC' '⎕NL' '⎕R' '⎕S'  '⎕C' '⎕DT' '⎕AV' '⎕PW'
+    ValidTokens,←'⎕RL' '⎕FMT' '⎕CT' '⎕IO' '⎕NC' '⎕NL' '⎕R' '⎕S'  '⎕C' '⎕DT' '⎕AV'
     ValidTokens,←'⎕SIZE' '⎕TS' '⎕UCS' '⎕VFI' '⎕XML' '⎕PP' '⎕D' '⎕A' '⎕AVU'
     ValidTokens,←'⎕DIV' '⎕JSON' '⎕CR' '⎕NR' '⎕VR' '⎕AT' '⎕ATX' '⎕DR' '⎕DL' '⎕FR'
     ValidTokens,←'⍎' '⍣' '⍕' '⌶' '⎕FX' ⍝ these need special treatment!
