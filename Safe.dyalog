@@ -52,22 +52,23 @@
       :EndIf
     ∇
       ValidLine←{ ⍝ Parse a single line of code, accepts only tokens in ⍺
+          l←'⎕\w+'⎕R'& '⊢⍵
           ShR←{¯1↓0,⍵}    ⍝ shift right fn
     ⍝ Split on tokens: names, ⎕names, strings, others
-          str←t∨ss←≠\t←⍵=''''     ⍝ where the strings are
-          cmnt←∨\str<'⍝'=⍵        ⍝ comment
+          str←t∨ss←≠\t←l=''''     ⍝ where the strings are
+          cmnt←∨\str<'⍝'=l        ⍝ comment
           ¯1↑ss>cmnt:⎕SIGNAL⊂('EN' 2)('Message' 'Unpaired quote') ⍝ detect uneven quotes early
           str←str>cmnt
           ss←str>ShR str          ⍝ where the strings start
           cs←<\cmnt               ⍝ comment start
     ⍝ ⎕names
-          quads←(cmnt∨str)<⍵='⎕'         ⍝ where the ⎕s are
+          quads←(cmnt∨str)<l='⎕'         ⍝ where the ⎕s are
           az←'abcdefghijklmnopqrstuvwxyz'
     ⍝ APL user names and numbers, this set is limited; the real set is (0≤⎕nc⍪⎕av)/⎕av
-          sn←(ShR quads)<vc>ShR+vc←(cmnt∨str)<⍵∊⎕A,az,'⍺⍵∆⍙_',⎕D
+          sn←(ShR quads)<vc>ShR+vc←(cmnt∨str)<l∊⎕A,az,'⍺⍵∆⍙_',⎕D
     ⍝ The tokens start where there is no string or name/number:
           t←cs∨sn∨ss∨str⍱vc ⍝ start of name or string or neither a name or a string
-          tokens←(t⊂⍵)
+          tokens←(t⊂l)
     ⍝ Uppercase ⎕fns
           tokens←{'⎕'≠1↑⍵:⍵ ⋄ b←az∊⍨s←⍵ ⋄ (b/s)←⎕A[az⍳b/s] ⋄ s}¨tokens
           ok←(∨\t/cs)∨(t/ss)∨t/sn
