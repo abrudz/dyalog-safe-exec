@@ -194,7 +194,7 @@
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ø←á⍕ó
     ∇
-    ∇ ø←{á}(áá í)ó ⍝ cover for ⌶ (allows only case conversion and date formatting)
+    ∇ ø←{á}(áá í)ó ⍝ cover for ⌶ (allows only date-time formatting)
       ⎕SIGNAL(~(⊂,áá)∊,¨,1200)/⊂('EN' 11)('Message' '⌶ is limited to date-time formatting (1200⌶)')
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ø←á(áá⌶)ó
