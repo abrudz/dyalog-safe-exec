@@ -7,7 +7,7 @@
     ValidTokens,←'⎕DIV' '⎕JSON' '⎕CR' '⎕NR' '⎕VR' '⎕AT' '⎕ATX' '⎕DR' '⎕DL' '⎕FR'
     ValidTokens,←'⍎' '⍣' '⍕' '⌶' '⎕FX' ⍝ these need special treatment!
     ValidTokens,¨←⊂⍬
-    Code∆R←{('''[^'']*''' '⍝.*',⊆⍺⍺)⎕R(,¨'&&',⊆⍵⍵)⊢⍵}
+    Code∆R←{('''[^'']*''' '⍝.*',⊆⍺⍺)⎕R(,¨'&&',⊆⍵⍵)⍠1⊢⍵}
     covered←'⎕NL\b' '⎕FX\b' '⍣' '⍎' '⍕' '⌶'
     covers←'ÑÍþéçí'
     CoverUp←covered Code∆R(' ',¨covers,¨' ')
