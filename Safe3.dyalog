@@ -3,15 +3,15 @@
     ⎕ML←1 ⋄ ⎕IO←1
     ∇ defs←coverdefs
       defs←↓⍉[
-          'Ñ' '⎕NL'
-          'Í' '⎕FX'
-          'þ' '⍣'
-          'é' '⍎'
-          'ç' '⍕'
-          'í' '⌶'
-          'ñ' '⎕NS'
-          'ù' '⎕VGET'
-          'ú' '⎕VSET'
+          'sûre_NL' '⎕NL'
+          'sûre_FX' '⎕FX'
+          'sûre_power' '⍣'
+          'sûre_execute' '⍎'
+          'sûre_format' '⍕'
+          'sûre_ibeam' '⌶'
+          'sûre_NS' '⎕NS'
+          'sûre_VGET' '⎕VGET'
+          'sûre_VSET' '⎕VSET'
       ]
     ∇
     (covers covered)←coverdefs
@@ -25,7 +25,6 @@
     covered←'\w$'⎕R'&\\b'⊢covered
     CoverUp←covered Code∆R(' ',¨covers,¨' ')
     debug←0
-
     monitor←0
     tasks←⍬ ⍬
     ∇ r←{space_timeout}Exec expr;ExCovers;dmx;space;tid;timeout;shy;thread
@@ -46,7 +45,6 @@
               tasks←⍬ ⍬
               monitor←Monitor&1
           :EndIf
-     
           :Trap debug↓0
               ExCovers←{⍵.⎕EX⍪covers,'ß'}
               :Hold 'tasks'
@@ -74,7 +72,6 @@
           ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
       :EndIf
     ∇
-
     ∇ Monitor go;stop;now;expired;cr
       cr←⎕UCS 13
       :If go
@@ -107,7 +104,6 @@
           ⎕TKILL monitor,⊃tasks
       :EndIf
     ∇
-
       ValidLine←{ ⍝ Parse a single line of code, accepts only tokens in ⍺
           ShR←{¯1↓0,⍵}    ⍝ shift right fn
     ⍝ Split on tokens: names, ⎕names, strings, others
@@ -130,8 +126,6 @@
           ok←(∨\t/cs)∨(t/ss)∨t/sn
           ∧/t←ok∨tokens∊⍺,⊂,' '
       }
-
-
     ∇ space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i;lf
     ⍝ Subroutine of Exec - runs in separate thread
     ⍝ Will be killed by "Monitor" if it takes too long to execute
@@ -143,7 +137,6 @@
           space.⎕LOCK¨covers
       :EndIf
       space.ß←⎕THIS
-     
       :Trap debug↓0
           output←⍬
           ⎕SIGNAL 85/⍨0=≢exprs
@@ -154,7 +147,6 @@
                   space⍎'résult←',opname
               :Else
                   safeExpr←'^\s+'⎕R''⍠'Mode' 'D'CoverUp expr ⍝ substitute covers for what they cover
-     
                   :If 2≤≢⎕FMT safeExpr
                       :If '∇'=⊃safeExpr
                           :If ≡space.⎕FX ⎕FMT safeExpr
@@ -186,6 +178,17 @@
           b←b∧0=+\b×(1 ¯1 0)[3|'{}}[]]()'⍳⍵] ⍝ Not in bracketed
           (b⍲'⋄'=⍵)⊆⍵}
     :Section Covers
+
+⍝    sûre_NL' '⎕N
+⍝sûre_FX' '⎕F
+⍝sûre_power'
+⍝sûre_execute
+⍝sûre_format'
+⍝sûre_ibeam'
+⍝sûre_NS' '⎕N
+⍝sûre_VGET' '
+⍝sûre_VSET' '
+
     ∇ ø←{á}(áá þ óó)ó ⍝ cover for ⍣ (allows interruption)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       :If 2=⎕NC'óó'
@@ -193,7 +196,7 @@
       :EndIf
       ø←á(áá{⍺←⊢ ⋄ ⍺ ⍺⍺ ⍵}⍣(|óó))ó
     ∇
-    ∇ ø←{á}é ó ⍝ cover for ⍎ (allows only numbers)
+    ∇ ø←{á}sûre_execute ó ⍝ cover for ⍎ (allows only numbers)
       :If 1≥≢⍴ó
       :AndIf 80 160 320∊⍨⎕DR ó ⍝ char
       :AndIf ß.(ValidTokens∘ValidLine)ó←,ó
@@ -208,21 +211,21 @@
           ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
       :EndIf
     ∇
-    ∇ ø←{á}ç ó ⍝ cover for ⍕ (disallows inverse)
+    ∇ ø←{á}sûre_format ó ⍝ cover for ⍕ (disallows inverse)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ø←á⍕ó
     ∇
-    ∇ ø←{á}(áá í)ó ⍝ cover for ⌶ (allows only date-time formatting)
+    ∇ ø←{á}(áá sûre_ibeam)ó ⍝ cover for ⌶ (allows only date-time formatting)
       ⎕SIGNAL(~(⊂,áá)∊,¨,1200)/⊂('EN' 11)('Message' '⌶ is limited to date-time formatting (1200⌶)')
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ø←á(áá⌶)ó
     ∇
-    ∇ ø←{á}Ñ ó  ⍝ cover for ⎕NL (hides covers)
+    ∇ ø←{á}sûre_NL ó  ⍝ cover for ⎕NL (hides covers)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ø←á ⎕NL ó
-      ø⌿⍨←(⊃⍤1↑ø)∊⎕A,'⍺⍵∆⍙_',⎕C ⎕A
+      ø⌿⍨←'û'≠ø[;2]
     ∇
-    ∇ {náme}←{á}Í ó;náme  ⍝ cover for ⎕FX (refuses unsafe code)
+    ∇ {náme}←{á}sûre_FX ó;náme  ⍝ cover for ⎕FX (refuses unsafe code)
       :If ∧/,ß.(ValidTokens∘ValidLine)⍤1↑ó
           ó←ß.CoverUp ó
           náme←⎕FX ó
@@ -236,17 +239,17 @@
           ⎕SIGNAL⊂('EN' 11)('Message' 'Install Dyalog to allow this')
       :EndIf
     ∇
-    ∇ ø←{á}ñ ó ⍝ cover for ⎕NS (disallows going up the ns structure)
+    ∇ ø←{á}sûre_NS ó ⍝ cover for ⎕NS (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('Message' 'Install Dyalog to allow this')
       ø←á ⎕NS ó
     ∇
-    ∇ ø←{á}ù ó ⍝ cover for ⎕VGET (disallows going up the ns structure)
+    ∇ ø←{á}sûre_VGET ó ⍝ cover for ⎕VGET (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('Message' 'Install Dyalog to allow this')
       ø←á ⎕VGET ó
     ∇
-    ∇ {ø}←{á}ú ó ⍝ cover for ⎕VSET (disallows going up the ns structure)
+    ∇ {ø}←{á}sûre_VSET ó ⍝ cover for ⎕VSET (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('Message' 'Install Dyalog to allow this')
       ø←á ⎕VSET ó
