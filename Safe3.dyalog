@@ -132,7 +132,7 @@
       space.⎕ML←1
       exprs←splitondiamonds expr
      ⍝ Now we inject covers for ⍣ (so it can be interrupted killed by timeout) and ⍎ and ⍕ and ⌶ (for safety)
-      'space'⎕NS⍪covers
+      'space'⎕NS covers
       :If ~debug
           space.⎕LOCK¨covers
       :EndIf
@@ -189,7 +189,7 @@
 ⍝sûre_VGET' '
 ⍝sûre_VSET' '
 
-    ∇ ø←{á}(áá þ óó)ó ⍝ cover for ⍣ (allows interruption)
+    ∇ ø←{á}(áá sûre_power óó)ó ⍝ cover for ⍣ (allows interruption)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       :If 2=⎕NC'óó'
           áá←áá⍣(×óó)
