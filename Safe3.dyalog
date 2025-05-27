@@ -45,7 +45,7 @@
               tasks←⍬ ⍬
               monitor←Monitor&1
           :EndIf
-          :Trap debug↓0
+          :Trap debug↓0 0
               ExCovers←{⍵.⎕EX⍪covers,'ß'}
               :Hold 'tasks'
                   tasks{⍺,¨debug↓¨⍵}←(thread←space AsynchExec&,expr)(timeout+20 ⎕DT'Z')      ⍝ Launch&wait execution in a separate thread
@@ -132,8 +132,11 @@
       space.⎕ML←1
       exprs←splitondiamonds expr
      ⍝ Now we inject covers for ⍣ (so it can be interrupted killed by timeout) and ⍎ and ⍕ and ⌶ (for safety)
+      :If 2=debug
+          (1+⊃⎕LC)⎕STOP⊃⎕SI
+      :EndIf
       'space'⎕NS covers
-      :If ~debug
+      :If 0=debug
           space.⎕LOCK¨covers
       :EndIf
       space.ß←⎕THIS
