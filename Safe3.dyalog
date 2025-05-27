@@ -46,7 +46,7 @@
               monitor←Monitor&1
           :EndIf
           :Trap debug↓0 0
-              ExCovers←{⍵.⎕EX⍪covers,'ß'}
+              ExCovers←{⍵.⎕EX covers,'ß'}
               :Hold 'tasks'
                   tasks{⍺,¨debug↓¨⍵}←(thread←space AsynchExec&,expr)(timeout+20 ⎕DT'Z')      ⍝ Launch&wait execution in a separate thread
               :EndHold
