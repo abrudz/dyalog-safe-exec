@@ -1,6 +1,7 @@
 :Namespace Safe3
     DefaultTimeout←10
     ⎕ML←1 ⋄ ⎕IO←1
+    illegal←('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
     ∇ defs←coverdefs
       defs←↓⍉[
           'sûre_NL' '⎕NL'
@@ -69,7 +70,7 @@
               ⎕SIGNAL⊂dmx.(('EN'EN)('Message'Message)('Vendor'Vendor))
           :EndTrap
       :Else
-          ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
+          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow that')
       :EndIf
     ∇
     ∇ Monitor go;stop;now;expired;cr
@@ -211,7 +212,7 @@
           :EndIf
           ⎕EX'résult'
       :Else
-          ⎕SIGNAL⊂⎕DMX.(('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Illegal token'))
+          ⎕SIGNAL⊂illegal
       :EndIf
     ∇
     ∇ ø←{á}sûre_format ó ⍝ cover for ⍕ (disallows inverse)
@@ -219,7 +220,7 @@
       ø←á⍕ó
     ∇
     ∇ ø←{á}(áá sûre_ibeam)ó ⍝ cover for ⌶ (allows only date-time formatting)
-      ⎕SIGNAL(~(⊂,áá)∊,¨,1200)/⊂('EN' 11)('Message' '⌶ is limited to date-time formatting (1200⌶)')
+      ⎕SIGNAL(~(⊂,áá)∊,¨,1200)/⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' '⌶ is limited to date-time formatting (1200⌶)')
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ø←á(áá⌶)ó
     ∇
@@ -236,25 +237,25 @@
               ⎕SIGNAL⊂('EN' 11)('EM' 'DEFN ERROR')
           :ElseIf ~3.1 3.2 4.1 4.2∊⍨⎕NC⊂náme
               ⎕EX náme
-              ⎕SIGNAL⊂('EN' 11)('Message' 'Install Dyalog to allow this')
+              ⎕SIGNAL⊂illegal
           :EndIf
       :Else
-          ⎕SIGNAL⊂('EN' 11)('Message' 'Install Dyalog to allow this')
+          ⎕SIGNAL⊂illegal
       :EndIf
     ∇
     ∇ ø←{á}sûre_NS ó ⍝ cover for ⎕NS (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('Message' 'Install Dyalog to allow this')
+      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂illegal
       ø←á ⎕NS ó
     ∇
     ∇ ø←{á}sûre_VGET ó ⍝ cover for ⎕VGET (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('Message' 'Install Dyalog to allow this')
+      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂illegal
       ø←á ⎕VGET ó
     ∇
     ∇ {ø}←{á}sûre_VSET ó ⍝ cover for ⎕VSET (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('Message' 'Install Dyalog to allow this')
+      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂illegal
       ø←á ⎕VSET ó
     ∇
     :EndSection
