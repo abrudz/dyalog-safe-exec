@@ -1,7 +1,7 @@
 :Namespace Safe3
     DefaultTimeout←10
     ⎕ML←1 ⋄ ⎕IO←1
-    illegal←('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
+
     ∇ defs←coverdefs
       defs←↓⍉[
           'sûre_NL' '⎕NL'
@@ -49,7 +49,7 @@
           :Trap debug↓0 0
               ExCovers←{⍵.⎕EX covers,'ß'}
               :Hold 'tasks'
-                  tasks{⍺,¨debug↓¨⍵}←(thread←space AsynchExec&,expr)(timeout+20 ⎕DT'Z')      ⍝ Launch&wait execution in a separate thread
+                  tasks{⍺,¨debug↓¨⍵}←(thread←space ÁsynchExec&,expr)(timeout+20 ⎕DT'Z')      ⍝ Launch&wait execution in a separate thread
               :EndHold
               ⎕TSYNC thread
               ExCovers space  ⍝ remove injected covers
@@ -127,7 +127,7 @@
           ok←(∨\t/cs)∨(t/ss)∨t/sn
           ∧/t←ok∨tokens∊⍺,⊂,' '
       }
-    ∇ space AsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i;lf
+    ∇ space ÁsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i;lf;dmx;vendor;en
     ⍝ Subroutine of Exec - runs in separate thread
     ⍝ Will be killed by "Monitor" if it takes too long to execute
       space.⎕ML←1
@@ -173,7 +173,11 @@
               :EndIf
           :EndFor
       :Else
-          ⎕SIGNAL⊂⎕DMX.(('EN'((200|EN)+200×⎕EN≠85))('Message'Message)('Vendor'(14↓⊃2⌽⊆⎕DM))) ⍝ Why doesn't 3⊃DM work?
+          dmx←⎕JSON ⎕JSON ⎕DMX
+          ⍝ Hide SafeExec artifacts from predictable error messages. Some error message might display incorrectly.
+          vendor←1 ⎕JSON dmx.DM↓¨⍨1 14 14×∧/(,'⍎')'ÁsynchExec[41]'(14⍴'')≡¨1 14 14↑¨dmx.DM
+          en←dmx.((200|EN)+200×EN≠85)
+          ⎕SIGNAL⊂('EN'en)('Message'dmx.Message)('Vendor'vendor)
       :EndTrap
     ∇
       splitondiamonds←{
@@ -182,16 +186,6 @@
           b←b∧0=+\b×(1 ¯1 0)[3|'{}}[]]()'⍳⍵] ⍝ Not in bracketed
           (b⍲'⋄'=⍵)⊆⍵}
     :Section Covers
-
-⍝    sûre_NL' '⎕N
-⍝sûre_FX' '⎕F
-⍝sûre_power'
-⍝sûre_execute
-⍝sûre_format'
-⍝sûre_ibeam'
-⍝sûre_NS' '⎕N
-⍝sûre_VGET' '
-⍝sûre_VSET' '
 
     ∇ ø←{á}(áá sûre_power óó)ó ⍝ cover for ⍣ (allows interruption)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
@@ -205,14 +199,14 @@
       :AndIf 80 160 320∊⍨⎕DR ó ⍝ char
       :AndIf ß.(ValidTokens∘ValidLine)ó←,ó
           :Trap 85
-              ⎕THIS ß.AsynchExec ó
+              ⎕THIS ß.ÁsynchExec ó
           :EndTrap
           :If ×⎕NC'résult'
               ø←résult
           :EndIf
           ⎕EX'résult'
       :Else
-          ⎕SIGNAL⊂illegal
+          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
       :EndIf
     ∇
     ∇ ø←{á}sûre_format ó ⍝ cover for ⍕ (disallows inverse)
@@ -237,25 +231,25 @@
               ⎕SIGNAL⊂('EN' 11)('EM' 'DEFN ERROR')
           :ElseIf ~3.1 3.2 4.1 4.2∊⍨⎕NC⊂náme
               ⎕EX náme
-              ⎕SIGNAL⊂illegal
+              ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
           :EndIf
       :Else
-          ⎕SIGNAL⊂illegal
+          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
       :EndIf
     ∇
     ∇ ø←{á}sûre_NS ó ⍝ cover for ⎕NS (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂illegal
+      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
       ø←á ⎕NS ó
     ∇
     ∇ ø←{á}sûre_VGET ó ⍝ cover for ⎕VGET (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂illegal
+      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
       ø←á ⎕VGET ó
     ∇
     ∇ {ø}←{á}sûre_VSET ó ⍝ cover for ⎕VSET (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂illegal
+      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
       ø←á ⎕VSET ó
     ∇
     :EndSection
