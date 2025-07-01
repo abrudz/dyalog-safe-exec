@@ -214,7 +214,7 @@
       ø←á⍕ó
     ∇
     ∇ ø←{á}(áá sûre_ibeam)ó ⍝ cover for ⌶ (allows only date-time formatting)
-      ⎕SIGNAL(~(⊂,áá)∊,¨,1200)/⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' '⌶ is limited to date-time formatting (1200⌶)')
+      ⎕SIGNAL(~(⊂,áá)∊,¨,120 1200 5581)/⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' '⌶ is limited to Genrate UUID (120⌶), Format Date-time (1200⌶), and Unicode Normalisation (5581⌶)')
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
       ø←á(áá⌶)ó
     ∇
