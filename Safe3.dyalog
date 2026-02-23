@@ -81,9 +81,9 @@
                   :EndIf
                   msg,←', '
               :EndFor
+              msg↓⍨←¯2
               msg,←' — '
           :EndIf
-          msg↓⍨←¯2
           msg,←'Install Dyalog to allow that'
           ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message'msg)
       :EndIf
