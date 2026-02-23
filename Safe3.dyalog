@@ -28,7 +28,7 @@
     debug←0
     monitor←0
     tasks←⍬ ⍬
-    ∇ r←{space_timeout}Exec expr;ExCovers;dmx;space;tid;timeout;shy;thread
+    ∇ r←{space_timeout}Exec expr;ExCovers;dmx;space;tid;timeout;shy;thread;ok;badTokens;msg;badToken
     ⍝ returns result
     ⍝ if shy, throws 6
     ⍝ if timed out, throws 10
@@ -41,7 +41,8 @@
       timeout←⊃(space_timeout/⍨2|⎕DR¨space_timeout),DefaultTimeout ⍝ default timeout
       shy←0=≢'^\s*⎕\s*←'⎕S 3⊢expr
       expr←'^\s*⎕\s*←'Code∆R''⊢expr
-      :If ValidTokens ValidLine⍕↓⎕FMT expr
+      (ok badTokens)←ValidTokens ReportLine⍕↓⎕FMT expr
+      :If ok
           :If 0=monitor
               tasks←⍬ ⍬
               monitor←Monitor&1
@@ -70,7 +71,21 @@
               ⎕SIGNAL⊂dmx.(('EN'EN)('Message'Message)('Vendor'Vendor))
           :EndTrap
       :Else
-          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow that')
+          msg←''
+          :If ×≢badTokens
+              :For badToken :In badTokens
+                  :If 1=≢badToken
+                      msg,←(1 ⎕JSON ⎕OPT('Charset' 'ASCII')('Dialect' 'JSON5')⊢badToken),' (⎕UCS ',(⍕⎕UCS badToken),')'
+                  :Else
+                      msg,←', ',badToken
+                  :EndIf
+                  msg,←', '
+              :EndFor
+              msg,←' — '
+          :EndIf
+          msg↓⍨←¯2
+          msg,←'Install Dyalog to allow that'
+          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message'msg)
       :EndIf
     ∇
     ∇ Monitor go;stop;now;expired;cr
@@ -105,7 +120,7 @@
           ⎕TKILL monitor,⊃tasks
       :EndIf
     ∇
-      ValidLine←{ ⍝ Parse a single line of code, accepts only tokens in ⍺
+      ReportLine←{ ⍝ Parse a single line of code, accepts only tokens in ⍺
           ShR←{¯1↓0,⍵}    ⍝ shift right fn
     ⍝ Split on tokens: names, ⎕names, strings, others
           str←t∨ss←≠\t←⍵=''''     ⍝ where the strings are
@@ -124,9 +139,12 @@
           tokens←(t⊂⍵)
     ⍝ Uppercase ⎕fns
           tokens←{'⎕'≠1↑⍵:⍵ ⋄ b←az∊⍨s←⍵ ⋄ (b/s)←⎕A[az⍳b/s] ⋄ s}¨tokens
-          ok←(∨\t/cs)∨(t/ss)∨t/sn
-          ∧/t←ok∨tokens∊⍺,⊂,' '
+          oks←(∨\t/cs)∨(t/ss)∨t/sn
+          ok←∧/t←oks∨tokens∊⍺,⊂,' '
+          ok((tokens/⍨~oks)~⍺,⊂,' ')
       }
+    ValidLine←⊃ReportLine
+
     ∇ space ÁsynchExec expr;result;dm;offset;t;exprs;pre;z;opname;safeExpr;i;lf;dmx;vendor;en
     ⍝ Subroutine of Exec - runs in separate thread
     ⍝ Will be killed by "Monitor" if it takes too long to execute
