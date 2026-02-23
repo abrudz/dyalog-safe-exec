@@ -73,7 +73,7 @@
       :Else
           msg←''
           :If ×≢badTokens
-              :For badToken :In badTokens
+              :For badToken :In ∪badTokens
                   :If 1=≢badToken
                       msg,←(1 ⎕JSON ⎕OPT('Charset' 'ASCII')('Dialect' 'JSON5')⊢badToken),' (⎕UCS ',(⍕⎕UCS badToken),')'
                   :Else
