@@ -82,10 +82,8 @@
                   msg,←', '
               :EndFor
               msg↓⍨←¯2
-              msg,←' — '
           :EndIf
-          msg,←'Install Dyalog to allow that'
-          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message'msg)
+          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT SUPPORTED')('Message'msg)
       :EndIf
     ∇
     ∇ Monitor go;stop;now;expired;cr
@@ -212,10 +210,10 @@
       :EndIf
       ø←á(áá{⍺←⊢ ⋄ ⍺ ⍺⍺ ⍵}⍣(|óó))ó
     ∇
-    ∇ ø←{á}sûre_execute ó ⍝ cover for ⍎ (allows only numbers)
-      :If 1≥≢⍴ó
-      :AndIf 80 160 320∊⍨⎕DR ó ⍝ char
-      :AndIf ß.(ValidTokens∘ValidLine)ó←,ó
+    ∇ ø←{á}sûre_execute ó;ók;mésg;badTókens;bádToken ⍝ cover for ⍎ (allows only numbers)
+      ⎕SIGNAL 11↓⍨(1≥≢⍴ó)∧(80 160 320∊⍨⎕DR ó) ⍝ hi-rank or char
+      (ók badTókens)←ß.(ValidTokens∘ReportLine)ó←,ó
+      :If ók
           :Trap 85
               ⎕THIS ß.ÁsynchExec ó
           :EndTrap
@@ -224,7 +222,19 @@
           :EndIf
           ⎕EX'résult'
       :Else
-          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
+          mésg←''
+          :If ×≢badTókens
+              :For bádToken :In ∪badTókens
+                  :If 1=≢bádToken
+                      mésg,←(1 ⎕JSON ⎕OPT('Charset' 'ASCII')('Dialect' 'JSON5')⊢bádToken),' (⎕UCS ',(⍕⎕UCS bádToken),')'
+                  :Else
+                      mésg,←bádToken
+                  :EndIf
+                  mésg,←', '
+              :EndFor
+              mésg↓⍨←¯2
+          :EndIf
+          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT SUPPORTED')('Message'mésg)
       :EndIf
     ∇
     ∇ ø←{á}sûre_format ó ⍝ cover for ⍕ (disallows inverse)
@@ -241,33 +251,46 @@
       ø←á ⎕NL ó
       ø⌿⍨←'û'≠ø[;2]
     ∇
-    ∇ {náme}←{á}sûre_FX ó;náme  ⍝ cover for ⎕FX (refuses unsafe code)
-      :If ∧/,ß.(ValidTokens∘ValidLine)⍤1↑ó
+    ∇ {náme}←{á}sûre_FX ó;náme;mésg;badTókens;bádToken;ók  ⍝ cover for ⎕FX (refuses unsafe code)
+      (ók badTókens)←ß.(ValidTokens∘ReportLine),' '↑ó
+      :If ók
           ó←ß.CoverUp ó
           náme←⎕FX ó
           :If ⍬≡0/náme
-              ⎕SIGNAL⊂('EN' 11)('EM' 'DEFN ERROR')
+              ⎕SIGNAL⊂('EN' 11)('EM' 'DEFN ERROR')('Message'('Problem on line',⍕náme))
           :ElseIf ~3.1 3.2 4.1 4.2∊⍨⎕NC⊂náme
               ⎕EX náme
-              ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
+              ⎕SIGNAL⊂('EN' 11)('EM' 'NOT SUPPORTED')('Message' 'Must be tradfn/tradop/dfn/dop')
           :EndIf
       :Else
-          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
+          mésg←''
+          :If ×≢badTókens
+              :For bádToken :In ∪badTókens
+                  :If 1=≢bádToken
+                      mésg,←(1 ⎕JSON ⎕OPT('Charset' 'ASCII')('Dialect' 'JSON5')⊢bádToken),' (⎕UCS ',(⍕⎕UCS bádToken),')'
+                  :Else
+                      mésg,←bádToken
+                  :EndIf
+                  mésg,←', '
+              :EndFor
+              mésg↓⍨←¯2
+          :EndIf
+          ⎕SIGNAL⊂('EN' 11)('EM' 'NOT SUPPORTED')('Message'mésg)
       :EndIf
     ∇
     ∇ ø←{á}sûre_NS ó ⍝ cover for ⎕NS (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
+      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('EM' 'NOT SUPPORTED')('Message' 'Install Dyalog to access namespaces up the hierarchy')
       ø←á ⎕NS ó
     ∇
     ∇ ø←{á}sûre_VGET ó ⍝ cover for ⎕VGET (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
+      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('EM' 'NOT SUPPORTED')('Message' 'Install Dyalog to access namespaces up the hierarchy')
       ø←á ⎕VGET ó
     ∇
     ∇ {ø}←{á}sûre_VSET ó ⍝ cover for ⎕VSET (disallows going up the ns structure)
       :If 900⌶⍬ ⋄ á←⊢ ⋄ :EndIf
-      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('EM' 'NOT PERMITTED')('Message' 'Install Dyalog to allow this')
+      ⎕SIGNAL(∨/'#⎕'∊∊á ó)⍴⊂('EN' 11)('EM' 'NOT SUPPORTED')('Message' 'Install Dyalog to access namespaces up the hierarchy')
       ø←á ⎕VSET ó
     ∇
     :EndSection
